@@ -10,6 +10,10 @@
   (util/info "Starting shadow-cljs server...\n")
   (server/start!))
 
+(defn restart-server! []
+  (util/info "Restarting shadow-cljs server...\n")
+  (server/stop!))
+
 (defn stop-server! []
   (util/info "Stopping shadow-cljs server...\n")
   (server/stop!))
