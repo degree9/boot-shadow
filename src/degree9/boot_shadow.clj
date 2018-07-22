@@ -9,7 +9,7 @@
   []
   (impl/server-impl *opts*))
 
-(boot/deftask compile
+(boot/deftask compiler
   "Compile a ClojureScript project using shadow-cljs."
   [b build  VAR kw  "Build ID. (:app)"]
    ;c config VAR str "Path to shadow-cljs.edn file. (./shadow-cljs.edn)"]
