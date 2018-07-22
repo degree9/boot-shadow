@@ -5,11 +5,11 @@
             [boot.util :as util]))
 
 ;; Helper Macros ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defmacro require-in-pod [pod & body]
+(defmacro require-in [pod & body]
   `(pod/with-eval-in ~pod
     (require ~@body)))
 
-(defmacro eval-in-pod [pod & body]
+(defmacro with-shadow-eval [pod & body]
   `(pod/with-eval-in ~pod
     (shadow.cljs.devtools.api/with-runtime
       (try ~@body
@@ -27,54 +27,44 @@
 
 ;; Shadow-CLJS Pod ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def shadow-pod
-  (pod/make-pod
-    (update-in pod/env [:dependencies] into
-      (-> "degree9/boot_shadow/pod_deps.edn" io/resource slurp read-string))))
+  (delay
+    (doto
+      (pod/make-pod
+        (update-in pod/env [:dependencies] into
+          (-> "degree9/boot_shadow/pod_deps.edn" io/resource slurp read-string)))
+      (require-in '[degree9.boot-shadow.pod]))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Shadow-CLJS Embedded Server ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn- stop-server! [pod]
-  (boot.pod/with-eval-in pod
-    (when (shadow.cljs.devtools.server.runtime/get-instance)
-      (boot.util/info "Stopping shadow-cljs server...\n")
-      (shadow.cljs.devtools.server/stop!))))
+  (boot.pod/with-call-in pod
+    (degree9.boot-shadow.pod/stop!)))
 
 (defn- start-server! [pod]
-  (boot.pod/with-eval-in pod
-    (when-not (shadow.cljs.devtools.server.runtime/get-instance)
-      (boot.util/info "Starting shadow-cljs server...\n")
-      (shadow.cljs.devtools.server/start!))))
+  (boot.pod/with-call-in pod
+    (degree9.boot-shadow.pod/start!)))
 
 (defn server-impl [*opts*]
   (ensure-shadow!)
-  (require-in-pod shadow-pod
-    '[shadow.cljs.devtools.server]
-    '[shadow.cljs.devtools.server.runtime])
   (boot/with-pass-thru fileset
-    (stop-server! shadow-pod)
-    (start-server! shadow-pod)))
+    (stop-server!  @shadow-pod)
+    (start-server! @shadow-pod)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;; Shadow-CLJS Compile ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn compile! [pod build output cache]
-  (eval-in-pod pod
-    (let [{:keys [output-dir] :as config} (shadow.cljs.devtools.api/get-build-config ~build)
-          target (.getAbsolutePath (clojure.java.io/file ~output output-dir))
-          config (assoc config :cache-root ~cache :output-dir target)]
-      (boot.util/info "Compiling ClojureScript using shadow-cljs...: %s\n" ~build)
-      (shadow.cljs.devtools.api/compile* config {}))))
+  (let [output (.getAbsolutePath output)
+        cache  (.getAbsolutePath cache)]
+    (with-shadow-eval pod
+      (degree9.boot-shadow.pod/compile! ~build ~output ~cache))))
 
 (defn compile-impl [*opts*]
   (let [build     (:build  *opts* :app)
         tmp       (boot/tmp-dir!)
-        tmp-dir   (.getAbsolutePath tmp)
-        cache     (boot/cache-dir! ::cache)
-        cache-dir (.getAbsolutePath cache)]
+        cache     (boot/cache-dir! ::cache)]
     (ensure-shadow!)
-    (require-in-pod shadow-pod
-      '[shadow.cljs.devtools.api]
-      '[shadow.cljs.devtools.errors])
     (boot/with-pre-wrap fileset
-      (compile! shadow-pod build tmp-dir cache-dir)
+      (compile! @shadow-pod build tmp cache)
       (-> fileset (boot/add-resource tmp) boot/commit!))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
