@@ -13,7 +13,7 @@
 
 (defn- patch-config [config output cache]
   (let [out-path (partial absolute-path output)]
-    (cond-> (assoc config :cache-root cache)
+    (cond-> config ;(assoc config :cache-root cache) ;; disable cache for now
       (:output-dir config)  (update :output-dir out-path)
       (:output-to config)   (update :output-to  out-path)
       (:http-root (:devtools config)) (update-in [:devtools :http-root] out-path))))
