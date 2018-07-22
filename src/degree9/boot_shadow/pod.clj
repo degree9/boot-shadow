@@ -23,17 +23,28 @@
 
 ;;;;;;
 
+(defn- server-msg [action]
+  (util/info "%s shadow-cljs server...\n" action))
+
+(defn- shadow-msg [action]
+  (util/info "Compiling ClojureScript using shadow-cljs: %s\n" action))
+
 (defn start! []
   (when-not (runtime/get-instance)
-    (util/info "Starting shadow-cljs server...\n")
+    (server-msg "Starting")
     (server/start!)))
 
 (defn stop! []
   (when (runtime/get-instance)
-    (util/info "Stopping shadow-cljs server...\n")
+    (server-msg "Stopping")
     (server/stop!)))
 
 (defn compile! [build output cache]
   (let [config (patch-config (get-config build) output cache)]
-    (util/info "Compiling ClojureScript using shadow-cljs...: %s\n" build)
+    (shadow-msg "compile")
     (api/compile* config {})))
+
+(defn release! [build output cache]
+  (let [config (patch-config (get-config build) output cache)]
+    (shadow-msg "release")
+    (api/release* config {})))

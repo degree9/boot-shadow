@@ -52,7 +52,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;; Shadow-CLJS Compile ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defn compile! [pod build output cache]
   (let [output (.getAbsolutePath output)
         cache  (.getAbsolutePath cache)]
@@ -66,5 +65,22 @@
     (ensure-shadow!)
     (boot/with-pre-wrap fileset
       (compile! @shadow-pod build tmp cache)
+      (-> fileset (boot/add-resource tmp) boot/commit!))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;; Shadow-CLJS Release ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn release! [pod build output cache]
+  (let [output (.getAbsolutePath output)
+        cache  (.getAbsolutePath cache)]
+    (with-shadow-eval pod
+      (degree9.boot-shadow.pod/release! ~build ~output ~cache))))
+
+(defn release-impl [*opts*]
+  (let [build     (:build  *opts* :app)
+        tmp       (boot/tmp-dir!)
+        cache     (boot/cache-dir! ::cache)]
+    (ensure-shadow!)
+    (boot/with-pre-wrap fileset
+      (release! @shadow-pod build tmp cache)
       (-> fileset (boot/add-resource tmp) boot/commit!))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

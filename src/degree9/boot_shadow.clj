@@ -1,4 +1,5 @@
 (ns degree9.boot-shadow
+  (:refer-clojure :exclude [compile])
   (:require [boot.core :as boot]
             [boot.util :as util]
             [degree9.boot-shadow.impl :as impl]))
@@ -8,8 +9,12 @@
   []
   (impl/server-impl *opts*))
 
-(boot/deftask compiler
+(boot/deftask compile
   "Compile a ClojureScript project using shadow-cljs."
   [b build  VAR kw  "Build ID. (:app)"]
-   ;c config VAR str "Path to shadow-cljs.edn file. (./shadow-cljs.edn)"]
   (impl/compile-impl *opts*))
+
+(boot/deftask release
+  "Release a ClojureScript project using shadow-cljs."
+  [b build  VAR kw  "Build ID. (:app)"]
+  (impl/release-impl *opts*))
