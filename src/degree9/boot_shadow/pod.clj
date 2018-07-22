@@ -10,14 +10,13 @@
 
 (defn- absolute-path [parent child]
   (.getAbsolutePath (io/file parent child)))
-  
+
 (defn- patch-config [config output cache]
   (let [out-path (partial absolute-path output)]
-    (-> config
-      (assoc  :cache-root cache)
-      (update :output-dir out-path)
-      (update :output-to  out-path)
-      (update-in [:devtools :http-root] out-path))))
+    (cond-> (assoc config :cache-root cache)
+      (:output-dir config)  (update :output-dir out-path)
+      (:output-to config)   (update :output-to  out-path)
+      (:http-root (:devtools config)) (update-in [:devtools :http-root] out-path))))
 
 (defn get-config [build]
   (api/get-build-config build))
