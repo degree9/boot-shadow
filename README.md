@@ -1,7 +1,7 @@
 # boot-shadow
 [![Clojars Project](https://img.shields.io/clojars/v/degree9/boot-shadow.svg)](https://clojars.org/degree9/boot-shadow)
-[![Dependencies Status](https://jarkeeper.com/degree9/boot-shadow/status.svg)](https://jarkeeper.com/degree9/boot-shadow)
-[![Downloads](https://jarkeeper.com/degree9/boot-shadow/downloads.svg)](https://jarkeeper.com/degree9/boot-shadow)
+[![Dependencies Status](https://versions.deps.co/degree9/boot-shadow/status.svg)](https://versions.deps.co/degree9/boot-shadow)
+[![Downloads](https://versions.deps.co/degree9/boot-shadow/downloads.svg)](https://versions.deps.co/degree9/boot-shadow)
 <!---
 [![CircleCI](https://circleci.com/gh/degree9/boot-shadow.svg?style=svg)](https://circleci.com/gh/degree9/boot-shadow)
 --->
