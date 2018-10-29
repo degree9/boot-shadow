@@ -2,6 +2,7 @@
   (:require [clojure.java.io :as io]
             [boot.util :as util]
             [shadow.cljs.devtools.api :as api]
+            [shadow.cljs.devtools.cli]
             [shadow.cljs.devtools.errors]
             [shadow.cljs.devtools.server :as server]
             [shadow.cljs.devtools.server.runtime :as runtime]))

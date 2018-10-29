@@ -1,8 +1,8 @@
 (set-env!
  :dependencies  '[[org.clojure/clojure                 "1.9.0"]
                   [boot/core                           "2.7.2"]
-                  [degree9/boot-semver                 "1.7.0"  :scope "test"]
-                  [thheller/shadow-cljs                "2.4.17" :scope "test"]]
+                  [thheller/shadow-cljs                "2.6.6"]
+                  [degree9/boot-semver                 "1.7.0"  :scope "test"]]
  :resource-paths   #{"src"})
 
 (require
@@ -21,8 +21,6 @@
   []
   (comp
    (version :develop true
-            :minor 'inc
-            :patch 'zero
             :pre-release 'snapshot)
    (watch)
    (target)
