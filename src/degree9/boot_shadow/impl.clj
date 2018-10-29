@@ -23,6 +23,9 @@
 (defn- ensure-shadow! []
   (when-not (.exists (io/file shadow-config))
     (util/warn "The shadow-cljs file is missing...: %s\n" shadow-config)))
+
+(defn- fs-sync! [fileset tmp]
+  (apply boot/sync! tmp (boot/input-dirs fileset)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Shadow-CLJS Pod ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -30,8 +33,9 @@
   (delay
     (doto
       (pod/make-pod
-        (update-in pod/env [:dependencies] into
-          (-> "degree9/boot_shadow/pod_deps.edn" io/resource slurp read-string)))
+        (boot/get-env))
+        ;(-> (boot/get-env)))
+          ;(update-in [:dependencies] into (-> "degree9/boot_shadow/pod_deps.edn" io/resource slurp read-string))))
       (require-in '[degree9.boot-shadow.pod]))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -64,6 +68,7 @@
         cache     (boot/cache-dir! ::cache)]
     (ensure-shadow!)
     (boot/with-pre-wrap fileset
+      (fs-sync! fileset tmp)
       (compile! @shadow-pod build tmp cache)
       (-> fileset (boot/add-resource tmp) boot/commit!))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -81,6 +86,7 @@
         cache     (boot/cache-dir! ::cache)]
     (ensure-shadow!)
     (boot/with-pre-wrap fileset
+      (fs-sync! fileset tmp)
       (release! @shadow-pod build tmp cache)
       (-> fileset (boot/add-resource tmp) boot/commit!))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

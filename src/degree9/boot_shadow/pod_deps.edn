@@ -1,1 +1,2 @@
-[[thheller/shadow-cljs "2.4.17"]]
+[[org.clojure/clojurescript "1.10.339"]
+ [thheller/shadow-cljs "2.6.6"]]
