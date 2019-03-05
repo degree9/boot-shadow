@@ -1,8 +1,6 @@
 (set-env!
- :dependencies  '[[org.clojure/clojure                 "1.9.0"]
-                  [boot/core                           "2.7.2"]
-                  [thheller/shadow-cljs                "2.6.6"]
-                  [degree9/boot-semver                 "1.7.0"  :scope "test"]]
+ :dependencies  '[[boot/core            "2.8.2"]
+                  [degree9/boot-semver  "1.8.0"  :scope "test"]]
  :resource-paths   #{"src"})
 
 (require
