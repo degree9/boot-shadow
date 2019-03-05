@@ -1,2 +1,1 @@
-[[org.clojure/clojurescript "1.10.339"]
- [thheller/shadow-cljs "2.6.6"]]
+[[degree9/boot-shadow "2.8.14-SNAPSHOT"] [thheller/shadow-cljs "2.8.14"]]

@@ -33,9 +33,8 @@
   (delay
     (doto
       (pod/make-pod
-        (boot/get-env))
-        ;(-> (boot/get-env)))
-          ;(update-in [:dependencies] into (-> "degree9/boot_shadow/pod_deps.edn" io/resource slurp read-string))))
+        (-> (boot/get-env)
+          (update-in [:dependencies] into (-> "degree9/boot_shadow/pod_deps.edn" io/resource slurp read-string))))
       (require-in '[degree9.boot-shadow.pod]))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
