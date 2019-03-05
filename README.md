@@ -8,7 +8,7 @@
 [![CircleCI](https://circleci.com/gh/degree9/boot-shadow.svg?style=svg)](https://circleci.com/gh/degree9/boot-shadow)
 --->
 
-Boot-clj task for compiling ClojureScript using shadow-cljs.
+Boot-clj task for compiling ClojureScript using [shadow-cljs][shadow].
 
 ---
 
@@ -52,3 +52,5 @@ boot shadow/release --build app
 </p>
 
 ---
+
+[shadow]: http://shadow-cljs.org
