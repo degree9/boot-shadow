@@ -1,3 +1,5 @@
+<p align="center"><img src="/.github/d9boot-shadow.png" width="445px"></p>
+
 # boot-shadow
 [![Clojars Project](https://img.shields.io/clojars/v/degree9/boot-shadow.svg)](https://clojars.org/degree9/boot-shadow)
 [![Dependencies Status](https://versions.deps.co/degree9/boot-shadow/status.svg)](https://versions.deps.co/degree9/boot-shadow)
@@ -12,7 +14,7 @@ Boot-clj task for compiling ClojureScript using shadow-cljs.
 
 <p align="center">
   <a href="https://degree9.io" align="center">
-    <img width="135" src="http://degree9.io/images/degree9.png">
+    <img width="135" src="/.github/logo.png">
   </a>
   <br>
   <b>boot-shadow is developed and maintained by Degree9</b>
