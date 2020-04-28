@@ -13,11 +13,13 @@
   (.getAbsolutePath (io/file parent child)))
 
 (defn- patch-config [config output cache]
-  (let [out-path (partial absolute-path output)]
+  (let [out-path (partial absolute-path output)
+        proj-path (partial absolute-path ".")]
     (cond-> config ;(assoc config :cache-root cache) ;; disable cache for now
       (:output-dir config)  (update :output-dir out-path)
       (:output-to config)   (update :output-to  out-path)
-      (:http-root (:devtools config)) (update-in [:devtools :http-root] out-path))))
+      (:http-root (:devtools config)) (update-in [:devtools :http-root] out-path)
+      (:js-package-dirs (:js-options config)) (update-in [:js-options :js-package-dirs] (partial map proj-path)))))
 
 (defn get-config [build]
   (api/get-build-config build))
@@ -42,6 +44,7 @@
 
 (defn compile! [build output cache]
   (let [config (patch-config (get-config build) output cache)]
+    (prn config)
     (shadow-msg "compile")
     (api/compile* config {})))
 

@@ -24,8 +24,11 @@
   (when-not (.exists (io/file shadow-config))
     (util/warn "The shadow-cljs file is missing...: %s\n" shadow-config)))
 
-(defn- fs-sync! [fileset tmp]
-  (apply boot/sync! tmp (boot/input-dirs fileset)))
+(defn- fs-sync! [prev fileset tmp]
+  (let [diff (->> fileset
+                  (boot/fileset-diff prev)
+                  (boot/input-dirs))]
+    (apply boot/sync! tmp diff)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Shadow-CLJS Pod ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -62,12 +65,14 @@
       (degree9.boot-shadow.pod/compile! ~build ~output ~cache))))
 
 (defn compile-impl [*opts*]
-  (let [build     (:build  *opts* :app)
-        tmp       (boot/tmp-dir!)
-        cache     (boot/cache-dir! ::cache)]
+  (let [build  (:build  *opts* :app)
+        tmp    (boot/tmp-dir!)
+        cache  (boot/cache-dir! ::cache)
+        prev   (atom nil)]
     (ensure-shadow!)
     (boot/with-pre-wrap fileset
-      (fs-sync! fileset tmp)
+      (fs-sync! @prev fileset tmp)
+      (reset! prev fileset)
       (compile! @shadow-pod build tmp cache)
       (-> fileset (boot/add-resource tmp) boot/commit!))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -80,12 +85,14 @@
       (degree9.boot-shadow.pod/release! ~build ~output ~cache))))
 
 (defn release-impl [*opts*]
-  (let [build     (:build  *opts* :app)
-        tmp       (boot/tmp-dir!)
-        cache     (boot/cache-dir! ::cache)]
+  (let [build  (:build  *opts* :app)
+        tmp    (boot/tmp-dir!)
+        cache  (boot/cache-dir! ::cache)
+        prev   (atom nil)]
     (ensure-shadow!)
     (boot/with-pre-wrap fileset
-      (fs-sync! fileset tmp)
+      (fs-sync! @prev fileset tmp)
+      (reset! prev fileset)
       (release! @shadow-pod build tmp cache)
       (-> fileset (boot/add-resource tmp) boot/commit!))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
