@@ -25,9 +25,7 @@
     (util/warn "The shadow-cljs file is missing...: %s\n" shadow-config)))
 
 (defn- fs-sync! [prev fileset tmp]
-  (let [diff (->> fileset
-                  (boot/fileset-diff prev)
-                  (boot/input-dirs))]
+  (let [diff (boot/fileset-diff prev fileset)]
     (apply boot/sync! tmp diff)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
