@@ -24,9 +24,14 @@
   (when-not (.exists (io/file shadow-config))
     (util/warn "The shadow-cljs file is missing...: %s\n" shadow-config)))
 
-(defn- fs-sync! [prev fileset tmp]
-  (let [diff (boot/fileset-diff prev fileset)]
-    (apply boot/sync! tmp diff)))
+(defn- fs-sync! [tmp]
+  (let [prev (atom nil)]
+    (boot/with-pass-thru fileset
+      (let [diff (->> fileset
+                      (boot/fileset-diff @prev)
+                      (boot/input-dirs))]
+        (reset! prev fileset)
+        (apply boot/sync! tmp diff)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Shadow-CLJS Pod ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -65,14 +70,13 @@
 (defn compile-impl [*opts*]
   (let [build  (:build  *opts* :app)
         tmp    (boot/tmp-dir!)
-        cache  (boot/cache-dir! ::cache)
-        prev   (atom nil)]
+        cache  (boot/cache-dir! ::cache)]
     (ensure-shadow!)
-    (boot/with-pre-wrap fileset
-      (fs-sync! @prev fileset tmp)
-      (reset! prev fileset)
-      (compile! @shadow-pod build tmp cache)
-      (-> fileset (boot/add-resource tmp) boot/commit!))))
+    (comp
+      (fs-sync! tmp)
+      (boot/with-pre-wrap fileset
+        (compile! @shadow-pod build tmp cache)
+        (-> fileset (boot/add-resource tmp) boot/commit!)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;; Shadow-CLJS Release ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -85,12 +89,11 @@
 (defn release-impl [*opts*]
   (let [build  (:build  *opts* :app)
         tmp    (boot/tmp-dir!)
-        cache  (boot/cache-dir! ::cache)
-        prev   (atom nil)]
+        cache  (boot/cache-dir! ::cache)]
     (ensure-shadow!)
-    (boot/with-pre-wrap fileset
-      (fs-sync! @prev fileset tmp)
-      (reset! prev fileset)
-      (release! @shadow-pod build tmp cache)
-      (-> fileset (boot/add-resource tmp) boot/commit!))))
+    (comp
+      (fs-sync! tmp)
+      (boot/with-pre-wrap fileset
+        (release! @shadow-pod build tmp cache)
+        (-> fileset (boot/add-resource tmp) boot/commit!)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
