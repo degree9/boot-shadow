@@ -44,7 +44,6 @@
 
 (defn compile! [build output cache]
   (let [config (patch-config (get-config build) output cache)]
-    (prn config)
     (shadow-msg "compile")
     (api/compile* config {})))
 
